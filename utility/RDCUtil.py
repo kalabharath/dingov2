@@ -85,6 +85,50 @@ def getRdcData(rdc_files, ss_seq):
             rdc_data.append(FormatRdc(len(ss_seq), rdc_files[j]))
         return rdc_data
 
+
+def getExtendedMapRoute(map_route):
+    """
+    To know before hand how to traverse the map_route with alternative smotif_definitions
+    :param map_route:
+    :return:
+    """
+
+    extended = []
+    # map= [[4, 5, 'start'], [3, 4, 'left'], [5, 6, 'right'], [6, 7, 'right'], [2, 3, 'left'], [1, 2, 'left'], [0, 1, 'left']]
+    map_ex = []
+    for entry in map_route:
+        map_ex.append(entry)
+        if 'start' in entry :
+            extended.append(entry)
+        else:
+            temp = []
+
+            if 'left' in entry:
+                e1, e2 = entry[0], entry[1]
+                for ex in map_ex:
+                    t1, t2 = ex[0], ex[1]
+                    if e1 < t1:
+                        if [e1, t1, 'left'] not in temp:
+                            temp.append([e1, t1, 'left'])
+                    if e1 < t2:
+                        if [e1, t2, 'left'] not in temp:
+                            temp.append([e1, t2, 'left'])
+                extended.append(temp)
+
+            if 'right' in entry:
+                e1, e2 = entry[0], entry[1]
+                for ex in map_ex:
+                    t1, t2 = ex[0], ex[1]
+                    if t1 < e2:
+                        if [t1, e2, 'right'] not in temp:
+                            temp.append([t1, e2, 'right'])
+                    if t2 < e2:
+                        if [t2, e2, 'right'] not in temp:
+                            temp.append([t2, e2, 'right'])
+                extended.append(temp)
+
+    return extended
+
 def getRDCMapRoute(ss_combi, rdc_data):
     """
     #map_route = [[0, 1, 'start'], [1, 2, 'right'], [2, 3, 'right'], [3, 4, 'right'], [4, 5, 'right'], [5, 6, 'right']

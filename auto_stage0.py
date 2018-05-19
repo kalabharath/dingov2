@@ -243,6 +243,7 @@ elif ('pcs_broker' in datatypes) and not ('rdc_input_files' in datatypes):
 else:
     map_route = ru.getRDCMapRoute(ss_combi, rdc_data)
     print map_route
+    map_route_extended = ru.getExtendedMapRoute(map_route)
     io.dumpPickle("rdc_route.pickle", map_route)
 
 if 'database_cutoff' in datatypes:

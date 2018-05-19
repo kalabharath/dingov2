@@ -39,6 +39,14 @@ def getBackboneCoors(ss_list, smotif):
 
 
 def getILVARotamers(res_type, bbc, spin):
+    """
+
+    :param res_type:
+    :param bbc:
+    :param spin:
+    :return:
+    """
+
     cwd = (os.path.dirname(os.path.realpath(__file__)))
     file_name = cwd + '/sidechainRotamers/' + res_type + "_sc.pickle"
     rotamers = io.readPickle(file_name)
@@ -84,13 +92,25 @@ def checkNoe(atom1_coor, atom2_coor, noedef):
 
 
 def getAtomCoors(noedef, coorH_matrix, bb_matrix, cluster_protons, cluster_sidechains, resi):
+    """
+
+    :param noedef:
+    :param coorH_matrix:
+    :param bb_matrix:
+    :param cluster_protons:
+    :param cluster_sidechains:
+    :param resi:
+    :return:
+    """
+    # noedef = [31, 'H', 47, 'HG1', 4.2, 2.4, 0.63, 'E', 'V']
     methyls = {'I': ['HG2', 'HD1'], 'L': ['HD1', 'HD2', 'HD'], 'V': ['HG1', 'HG2', 'HG'], 'A': ['HB']}
     cluster_proton_entries = cluster_protons.keys()
     atom1_coor, atom2_coor = [], []
 
-    if noedef[1] == 'H':
+    if noedef[1] == 'H': # if just protons
         atom1_coor = coorH_matrix[noedef[0]]
-    elif noedef[1] in methyls[noedef[7]]:
+
+    elif noedef[1] in methyls[noedef[7]]: # having methyl entries
         if (noedef[0], noedef[1]) in cluster_proton_entries:
             atom1_coor = cluster_protons[(noedef[0], noedef[1])]
         else:
@@ -179,8 +199,8 @@ def s1ILVApdf(s1_def, s2_def, smotif, exp_data, stage):
 
     # methyls = {'I': ['HG2', 'HD1'], 'L': ['HD1', 'HD2', 'HD'], 'V': ['HG1', 'HG2', 'HG'], 'A': ['HB']}
     noe_data = exp_data['ilva_noes']
-    cluster_protons = {}
-    cluster_sidechains = {}
+    cluster_protons = {}      # What does it carry
+    cluster_sidechains = {}   # what does it carry
 
     satisfied_noes = []
     unsatisfied_noes = []
@@ -272,6 +292,7 @@ def s1ILVApdf(s1_def, s2_def, smotif, exp_data, stage):
     noe_energy = getNOEenergy(error_array, total_noes)
     probability = noes_found / total_noes
     threshold = exp_data['expected_noe_prob'][stage - 1]
+
     if probability < threshold:
         return 0.001, noes_found, 0.00, [satisfied_noes, unsatisfied_noes], cluster_protons, cluster_sidechains
     elif noe_energy > noe_energy_cutoff:

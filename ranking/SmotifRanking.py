@@ -284,6 +284,7 @@ def makeTopPickle2(previous_smotif_index, num_hits, stage):
         t_hits = io.readGzipPickle(f)
         for t_hit in t_hits:
             hits.append(t_hit)
+
     """
     identifiers: smotif, smotif_def, seq_filter, contacts_filter, PCS_filter, qcp_rmsd, Evofilter
                  RDC_filter, NOE_filter
@@ -458,10 +459,12 @@ def makeTopPickle2Old(previous_smotif_index, num_hits, stage):
 
 
 def getRunSeq(num_hits, stage):
+
     """
     generate run seq, a seq list of pairs of
     indexes of profiles for job scheduling
     """
+
     map_route = []
     ss_profiles = io.readPickle("ss_profiles.pickle")
     if os.path.isfile("contacts_route.pickle"):

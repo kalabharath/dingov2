@@ -404,12 +404,13 @@ def start_top_hits(num_hits, stage):
         return [999], 999
 
     direction = next_smotif[-1]
+
     if direction == 'left':
         next_ss_list = ss_profiles[next_smotif[0]]
     else:
         next_ss_list = ss_profiles[next_smotif[1]]
-    # get and make a list of top 10(n) of the previous run
 
+    # get and make a list of top 10(n) of the previous run
     # top_hit_file = str((next_index) - 1) + "_tophits.pickle"
 
     top_hits = []
