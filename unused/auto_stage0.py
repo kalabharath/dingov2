@@ -290,17 +290,44 @@ for i in range(0, len(map_route)):
             i) + " > " + str(i) + ".log\n"
         print run_line
         fout.write(run_line)
+        run_line = "mpirun -np " + str(
+            ncpus) + " python ../../main/Dingo_alt_mpi.py --infile " + str(
+            i) + " --stage 2" + "  --numhits 127 \n"
+        fout.write(run_line)
+        gather_line = "python ../../main/gather_and_stitch.py --infile " + str(
+            i) + " --numhits 127 \n" + "python inter_rmsd.py " + str(
+            i) + " > " + str(i) + ".refined_log\n"
+        fout.write(gather_line)
     elif i != 1 and i <= len(map_route) - 3:
         run_line = "mpirun -np " + str(
-            ncpus) + " python ../../main/Dingo_mpi.py --stage 3 --infile "+str(i) + "  --numhits 127 \n" + "python inter_rmsd.py " + str(
+            ncpus) + " python ../../main/Dingo_mpi.py --stage 3" + "  --numhits 127 \n" + "python inter_rmsd.py " + str(
             i) + " > " + str(i) + ".log\n"
         print run_line
         fout.write(run_line)
+        run_line = "mpirun -np " + str(
+            ncpus) + " python ../../main/Dingo_alt_mpi.py --infile " + str(
+            i) + " --stage 3" + "  --numhits 127 \n" + "python inter_rmsd.py " + str(
+            i) + " > " + str(i) + ".refined_log\n"
+        fout.write(run_line)
+        gather_line = "python ../../main/gather_and_stitch.py --infile " + str(
+            i) + " --numhits 127 \n" + "python inter_rmsd.py " + str(
+            i) + " > " + str(i) + ".refined_log\n"
+        fout.write(gather_line)
+
     else:
         run_line = "mpirun -np " + str(
-            ncpus) + " python ../../main/Dingo_mpi.py --stage 4  --infile "+str(i) + "  --numhits 127 \n" + "python inter_rmsd.py " + str(
+            ncpus) + " python ../../main/Dingo_mpi.py --stage 4" + "  --numhits 127 \n" + "python inter_rmsd.py " + str(
             i) + " > " + str(i) + ".log\n"
         print run_line
         fout.write(run_line)
+        run_line = "mpirun -np " + str(
+            ncpus) + " python ../../main/Dingo_alt_mpi.py --infile " + str(
+            i) + " --stage 4" + "  --numhits 127 \n" + "python inter_rmsd.py " + str(
+            i) + " > " + str(i) + ".refined_log\n"
+        fout.write(run_line)
+        gather_line = "python ../../main/gather_and_stitch.py --infile " + str(
+            i) + " --numhits 127 \n" + "python inter_rmsd.py " + str(
+            i) + " > " + str(i) + ".refined_log\n"
+        fout.write(gather_line)
 fout.close()
 exit()

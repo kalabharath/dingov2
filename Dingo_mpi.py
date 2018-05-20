@@ -58,6 +58,7 @@ def killall(processes):
 parser = argparse.ArgumentParser(description='DINGO-PCS Master MPI process that manages all jobs.')
 parser.add_argument('--stage', type=int, help='specify the stage of  the Smotif assembly')
 parser.add_argument('--numhits', type=int, help='Top number of hits to be selected from previous assembly')
+parser.add_argument('--infile', type=int, help='specify the top_hits file')
 args = parser.parse_args()
 # ************************************ Define cmd line argument parser ************************************
 

@@ -27,7 +27,6 @@ def getPairSSProfiles(s1, s2, ss_profile):
     return s1_l, s2_l
 
 
-
 def getRunSeq():
     """
     generate run seq, a seq list of pairs of
@@ -46,7 +45,6 @@ def getRunSeq():
     print map_route
     s1, s2 = map_route[0][0], map_route[0][1]
     s1_list, s2_list = getPairSSProfiles(s1, s2, ss_profiles)
-
     run_seq = []
     for i in range(len(s1_list)):
         for j in range(len(s2_list)):

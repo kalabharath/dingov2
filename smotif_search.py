@@ -2,7 +2,7 @@
 
 """
 Project_Name: main, File_name: smotif_search.py
-Aufthor: kalabharath, Email: kalabharath@gmail.com
+Author: kalabharath, Email: kalabharath@gmail.com
 
 """
 import filters.constraints.looplengthConstraint as llc
