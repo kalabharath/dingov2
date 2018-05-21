@@ -461,6 +461,56 @@ def makeTopPickle2Old(previous_smotif_index, num_hits, stage):
 def getRunSeq(num_hits, stage):
 
     """
+    # Change to accommodate alternate smotif definitions
+    generate run seq, a seq list of pairs of
+    indexes of profiles for job scheduling
+    """
+
+    map_route = []
+    ss_profiles = io.readPickle("ss_profiles.pickle")
+    if os.path.isfile("contacts_route.pickle"):
+        map_route = io.readPickle("contacts_route.pickle")
+    elif os.path.isfile("pcs_route.pickle"):
+        map_route = io.readPickle("pcs_route.pickle")
+    elif os.path.isfile("rdc_route.pickle"):
+        map_route = io.readPickle("rdc_route.pickle")
+    try:
+        next_index, next_smotif = getNextSmotif(map_route)
+        print next_index, next_smotif
+    except TypeError:
+        return [999], 999
+
+    direction = next_smotif[-1]
+    if direction == 'left':
+        next_ss_list = ss_profiles[next_smotif[0]]
+    else:
+        next_ss_list = ss_profiles[next_smotif[1]]
+
+    # get and make a list of top 10(n) of the previous run
+    # top_hits = makeTopPickle(next_index - 1, num_hits, stage)  # send the previous Smotif index
+
+    top_hits = makeTopPickle2(next_index - 1, num_hits, stage)  # send the previous Smotif index
+
+    # delete two stages down pickled files
+    # check_pickle = str(next_index - 2) + str("_*_*.pickle")
+    check_pickle = str(next_index - 2) + str("_*_*.gzip")
+    file_list = glob.glob(check_pickle)
+
+    if len(file_list) > 10:
+        remove = "rm " + check_pickle
+        os.system(remove)
+
+    if top_hits:
+        run_seq = []
+        for i in range(len(top_hits)):
+            for j in range(len(next_ss_list)):
+                run_seq.append([i, j])
+        return run_seq, next_index
+
+def getRunSeqAlt(num_hits, stage, seq_index):
+
+    """
+    # Change to accommodate alternate smotif definitions
     generate run seq, a seq list of pairs of
     indexes of profiles for job scheduling
     """
@@ -474,6 +524,11 @@ def getRunSeq(num_hits, stage):
     elif os.path.isfile("rdc_route.pickle"):
         map_route = io.readPickle("rdc_route.pickle")
 
+    alt_smotif_defs = map_route[seq_index]
+
+    print "here: ", alt_smotif_defs
+
+
     try:
         next_index, next_smotif = getNextSmotif(map_route)
         print next_index, next_smotif
@@ -485,6 +540,7 @@ def getRunSeq(num_hits, stage):
         next_ss_list = ss_profiles[next_smotif[0]]
     else:
         next_ss_list = ss_profiles[next_smotif[1]]
+
     # get and make a list of top 10(n) of the previous run
     # top_hits = makeTopPickle(next_index - 1, num_hits, stage)  # send the previous Smotif index
 

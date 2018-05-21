@@ -42,7 +42,7 @@ def getRunSeq():
         map_route = io.readPickle("pcs_route.pickle")
     elif os.path.isfile("rdc_route.pickle"):
         map_route = io.readPickle("rdc_route.pickle")
-    print map_route
+
     s1, s2 = map_route[0][0], map_route[0][1]
     s1_list, s2_list = getPairSSProfiles(s1, s2, ss_profiles)
     run_seq = []
@@ -65,9 +65,9 @@ def getSSlist():
     if map_route:
         s1, s2 = map_route[0][0], map_route[0][1]
         s1_list, s2_list = getPairSSProfiles(s1, s2, ss_profiles)
-        return s1_list, s2_list
+        return s1_list, s2_list, [s1, s2]
     else:
-        return False, False
+        return False, False, False
 
 
 def getSSdef(index_array):
@@ -76,11 +76,11 @@ def getSSdef(index_array):
     :param index_array:
     :return:
     """
-    s1_list, s2_list = getSSlist()
-    return s1_list[index_array[0]], s2_list[index_array[1]]
+    s1_list, s2_list, sse_route = getSSlist()
+    return s1_list[index_array[0]], s2_list[index_array[1]], sse_route
 
 
-def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage):
+def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, alt_smotif_def):
 
     """
     from stage2
@@ -93,14 +93,18 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage):
     """
 
     if stage == 2:
-        psmotif = []
-        for entry in previous_smotif:
-            if 'smotif_def' == entry[0]:
-                psmotif = entry[-1]
+
+        previous_sse_index = previous_smotif[0][2]
+        psmotif = previous_smotif[1][-1]
+
         if direction == 'left':
-            previous_ss = psmotif[0]
+            previous_sse = alt_smotif_def[1]
+            previous_ss_index = previous_sse_index.index(previous_sse)
+            previous_ss = psmotif[previous_ss_index]
         else:
-            previous_ss = psmotif[1]
+            previous_sse = alt_smotif_def[0]
+            previous_ss_index = previous_sse_index.index(previous_sse)
+            previous_ss = psmotif[previous_ss_index]
     else:
         searched_smotifs = []
         for entry in previous_smotif:
@@ -161,7 +165,7 @@ def generate_refinement_order2(sse_array, computed_pairs):
     return refine_pairs, computed_pairs
 
 
-def orderSSE(previous_smotif, current_sse, direction, stage):
+def orderSSE(previous_smotif, current_sse, direction, stage, alt_smotf_def):
 
     """
     :param previous_smotif:
@@ -172,15 +176,15 @@ def orderSSE(previous_smotif, current_sse, direction, stage):
     """
 
     if stage == 2:
-
+        previous_sse_soute = (previous_smotif[0][2])[:]
         ordered_sse = (previous_smotif[1][1])[:]
         if direction == 'left':
             ordered_sse.insert(0, current_sse)
+            previous_sse_soute.insert(0, alt_smotf_def[0])
         else:
             ordered_sse.append(current_sse)
-        refine_pairs, computed_pairs = generate_refinement_order(ordered_sse)
-
-        return ordered_sse, refine_pairs, computed_pairs, []
+            previous_sse_soute.append(alt_smotf_def[1])
+        return ordered_sse, previous_sse_soute
     else:
         computed_pairs = previous_smotif[8][2]
         log_refine_smotif = previous_smotif[8][3]

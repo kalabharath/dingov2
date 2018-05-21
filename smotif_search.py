@@ -28,7 +28,7 @@ def S1SmotifSearch(task):
 
     index_array = task[0]
     stage = task[1]
-    s1_def, s2_def = mutil.getSSdef(index_array)
+    s1_def, s2_def, sse_route = mutil.getSSdef(index_array)
     smotif_def = sm.getSmotif(s1_def, s2_def)
 
     exp_data = io.readPickle("exp_data.pickle")
@@ -81,7 +81,7 @@ def S1SmotifSearch(task):
         tlog, pcs_tensor_fits, rdc_tensor_fits, = [], [], []
         ref_rmsd, noe_probability = 0.0, 0.0
 
-        tlog.append(['smotif', smotif_data[i]])
+        tlog.append(['smotif', smotif_data[i], sse_route])
         tlog.append(['smotif_def', [s1_def, s2_def]])
         parent_smotifs = sm.array2string([smotif_data[i][0]])
         tlog.append(['qcp_rmsd'])
@@ -152,15 +152,12 @@ def S1SmotifSearch(task):
 
     # Save all of the hits in pickled arrays
     if dump_log:
-        # testing for rdc_plus_pcs
         if 'rank_top_hits' in exp_data_types:
-            # dump_log = rank.rank_dump_log(dump_log, exp_data, stage=1)
             rank_top_hits = exp_data['rank_top_hits']
             num_hits = rank_top_hits[stage - 1]
             dump_log = rank.rank_assembly(dump_log, num_hits)
             print "Reducing the amount of data to:", rank_top_hits[stage - 1], len(dump_log)
         print "num of hits", len(dump_log)
-        # io.dumpPickle('0_' + str(index_array[0]) + "_" + str(index_array[1]) + ".pickle", dump_log)
         io.dumpGzipPickle('0_' + str(index_array[0]) + "_" + str(index_array[1]) + ".gzip", dump_log)
         return dump_log
     else:
@@ -174,21 +171,29 @@ def sXSmotifSearch(task):
     :param task:
     :return:
     """
-    index_array = task[0]
+    # task = [[0, 0, [3, 4, 'left'], args.stage]
+    #print "XXYY",task[0], task[1]
+    index_array = [task[0][0], task[0][1]]
+    alt_smotif_def = task[0][2]
+    #print alt_smotif_def
+    #print index_array
     stage = task[1]
-
+    file_index = task[2]
+    #print file_index, stage
+    print task
     exp_data = io.readPickle("exp_data.pickle")
     exp_data_types = exp_data.keys()  # ['ss_seq', 'pcs_data', 'aa_seq', 'contacts']
     psmotif, preSSE, dump_log = [], [], []
 
     if stage == 2:
-        psmotif = uts2.getPreviousSmotif(index_array[0])
-        current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1])
-        csmotif_data, smotif_def = mutil.getfromDB(psmotif, current_ss, direction, exp_data['database_cutoff'], stage)
-        sse_ordered, refine_pairs, computed_pairs, log_refine_smotif = mutil.orderSSE(psmotif, current_ss, direction, stage)
+        psmotif = uts2.getPreviousSmotif(index_array[0], file_index)
+        current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1], alt_smotif_def)
+        csmotif_data, smotif_def = mutil.getfromDB(psmotif, current_ss, direction, exp_data['database_cutoff'], stage, alt_smotif_def)
+        sse_ordered, sse_index_ordered = mutil.orderSSE(psmotif, current_ss, direction, stage, current_ss_in_que)
         sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(psmotif)
-    else:
+        # print "Here S2x", smotif_def, sse_ordered, sse_index_ordered
 
+    else:
         preSSE = uts2.getPreviousSmotif(index_array[0])
         current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1])
         csmotif_data, smotif_def = mutil.getfromDB(preSSE, current_ss, direction, exp_data['database_cutoff'], stage)
@@ -230,14 +235,14 @@ def sXSmotifSearch(task):
             natives = exp_data['natives']
             if pdbid in natives:
                 continue
-            # Stop further execution, but, iterate.
+            # Stop further execution, but, go to next.
             else:
                 pass
 
         if 'homologs' in exp_data_types:  # Smotif assembly only from the specified pdb files
             homologs = exp_data['homologs']
             if pdbid not in homologs:
-                # Stop further execution, but, iterate.
+                # Stop further execution, but, go to next.
                 continue
             else:
                 pass
@@ -246,7 +251,7 @@ def sXSmotifSearch(task):
         # RMSD filter using QCP method
         # quickly filters non-overlapping smotifs
         # ************************************************
-
+        # The real fun is to properly fix these, hahahahhaha
         if stage == 2:
             rmsd, transformed_coos = qcp.rmsdQCP(psmotif[0], csmotif_data[i], direction, rmsd_cutoff)
         else:
@@ -288,14 +293,6 @@ def sXSmotifSearch(task):
             # ************************************************
 
             # concat current to previous seq
-            """
-            if stage == 2:
-                seq_identity, concat_seq = Sfilter.getSXSeqIdentity(current_ss, csmotif_data[i], direction, exp_data,
-                                                                    psmotif, sse_ordered)
-            else:
-                seq_identity, concat_seq = Sfilter.getSXSeqIdentity(current_ss, csmotif_data[i], direction, exp_data,
-                                                                    preSSE, sse_ordered)
-            """
             concat_seq = 'SeqAnchor'
             seq_identity = 30.0
             tlog.append(['seq_filter', concat_seq, seq_identity, exp_data['cluster_rmsd_cutoff']])

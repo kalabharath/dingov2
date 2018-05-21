@@ -68,8 +68,6 @@ if rank == 0:
 
     # ************************************ Extract top hits from previous stage ************************************
 
-    sse_index = 9999999
-
     if args.stage == 1:
         tasks = mutil.getRunSeq()  # there are no hits to extract if it is the 1st stage
 
@@ -78,21 +76,17 @@ if rank == 0:
         try:
             try:
                 # Restart from the already assembled top hits if possible
-                tasks, sse_index = util.start_top_hits(args.numhits, args.stage)
+                tasks, sse_index = util.start_top_hits(args.numhits, args.stage, args.infile)
+                print "here", tasks, sse_index
             except:
                 # Assemble top hits from the previously generated hits
                 print "XXX:", args.numhits, args.stage
-                tasks, sse_index = srank.getRunSeq(args.numhits, args.stage)
+                tasks, sse_index = srank.getRunSeq(args.numhits, args.stage) # TODO change this for new alt_smotifs
+                # tasks, sse_index = srank.getRunSeqAlt(args.numhits, args.stage, args.infile)
         except:
             # print what went wrong and terminate the slave processes
             traceback.print_exc()
             print "Couldn't extract top hits within the specified cutoffs: Exiting..."
-            killall(size)
-            exit()
-
-        if sse_index == 9999999:
-            # kill all slaves if there is there is EOL
-            # only makes sense for self submitting jobs
             killall(size)
             exit()
 
@@ -125,7 +119,7 @@ if rank == 0:
         if tag == tags.READY:
             # worker process is ready, send some task to do.
             if task_index < len(tasks):
-                comm.send([tasks[task_index], args.stage], dest=source, tag=tags.START)
+                comm.send([tasks[task_index], args.stage, args.infile], dest=source, tag=tags.START)
                 task_index += 1  # increment its
             else:
                 # everything is done, send exit signal

@@ -383,7 +383,7 @@ def getRunSeq(num_hits, stage):
                 run_seq.append([i, j])
         return run_seq, next_index
 
-def start_top_hits(num_hits, stage):
+def start_top_hits(num_hits, stage, smotif_index):
     """
     generate run seq, a seq list of pairs of
     indexes of profiles for job scheduling
@@ -396,7 +396,45 @@ def start_top_hits(num_hits, stage):
         map_route = io.readPickle("pcs_route.pickle")
     elif os.path.isfile("rdc_route.pickle"):
         map_route = io.readPickle("rdc_route.pickle")
+        map_route_alt = io.readPickle("rdc_route_alt.pickle")
 
+    alt_smotif_defs = map_route_alt[smotif_index]
+
+    top_hits = []
+    top_hit_file = str(smotif_index - 1) + "_refined_tophits.gzip"
+    if os.path.isfile(top_hit_file):
+        top_hits = io.readGzipPickle(top_hit_file)
+        print "loading from prevously assembled refined_tophits.pickle file"
+        print "# hits :", len(top_hits)
+    else:
+        top_hit_file = str(smotif_index - 1) + "_tophits.gzip"
+        if os.path.isfile(top_hit_file):
+            top_hits = io.readGzipPickle(top_hit_file)
+            print "loading from prevously assembled tophits.pickle file"
+            print "# hits :", len(top_hits)
+        else:
+            print "No previous tophits file found, Generating a new one"
+            return "exception"
+
+    if not top_hits:
+        return False, False
+
+    run_seq = []
+    for next_smotif in alt_smotif_defs:
+        print next_smotif
+        direction = next_smotif[-1]
+        if direction == 'left':
+            next_ss_list = ss_profiles[next_smotif[0]]
+        else:
+            next_ss_list = ss_profiles[next_smotif[1]]
+
+        for i in range(len(top_hits)):
+            for j in range(len(next_ss_list)):
+                run_seq.append([i, j, next_smotif])
+    return run_seq, smotif_index
+
+"""
+    #################### old code #######################
     try:
         next_index, next_smotif = getNextSmotif(map_route)
         print next_index, next_smotif
@@ -429,17 +467,6 @@ def start_top_hits(num_hits, stage):
             print "No previous tophits file found, Generating a new one"
             return "exception"
 
-    """
-    
-    if os.path.isfile(top_hit_file):
-        top_hits = io.readGzipPickle(top_hit_file)
-        print "loading from prevously assembled tophits.pickle file"
-        print "# hits :", len(top_hits)
-    else:
-        print "No previous tophits file found, Generating a new one"
-        return "exception"
-    """
-
     # delete two stages down pickled files
     # check_pickle = str(next_index - 2) + str("_*_*.pickle")
     check_pickle = str(next_index - 2) + str("_*_*.gzip")
@@ -458,46 +485,41 @@ def start_top_hits(num_hits, stage):
     else:
         return False, False
 
+"""
 
-def getPreviousSmotif(index):
 
-    map_route = []
-    if os.path.isfile("contacts_route.pickle"):
-        map_route = io.readPickle("contacts_route.pickle")
-    elif os.path.isfile("pcs_route.pickle"):
-        map_route = io.readPickle("pcs_route.pickle")
-    elif os.path.isfile("rdc_route.pickle"):
-        map_route = io.readPickle("rdc_route.pickle")
-
-    next_index, next_smotif = getNextSmotif(map_route)
-    # top_hits = io.readPickle(str(next_index - 1) + "_tophits.pickle")  # Read in previous index hits
-
+def getPreviousSmotif(index, next_index):
+    """
+    Modified for the Alt_Smotifs from the original version
+    :param index:
+    :param next_smotif:
+    :param next_index:
+    :return:
+    """
     t_file = str(next_index - 1) + "_refined_tophits.gzip"
     if os.path.isfile(t_file):
         top_hits = io.readGzipPickle(t_file)  # Read in previous index hits
     else:
         t_file = str(next_index - 1) + "_tophits.gzip"
-        top_hits = io.readGzipPickle(t_file)  # Read in previous index hits
+        if os.path.isfile(t_file):
+            top_hits = io.readGzipPickle(t_file)  # Read in previous index hits
+        else:
+            return False
 
-    # top_hits = io.readGzipPickle(str(next_index - 1) + "_tophits.gzip")  # Read in previous index hits
     return top_hits[index]
 
 
-def getSS2(index):
+def getSS2(index, next_smotif):
+    """
 
-    map_route = []
-
-    if os.path.isfile("contacts_route.pickle"):
-        map_route = io.readPickle("contacts_route.pickle")
-    elif os.path.isfile("pcs_route.pickle"):
-        map_route = io.readPickle("pcs_route.pickle")
-    elif os.path.isfile("rdc_route.pickle"):
-        map_route = io.readPickle("rdc_route.pickle")
+    :param index:
+    :param next_smotif:
+    :return:
+    """
 
     ss_profiles = io.readPickle("ss_profiles.pickle")
-    
-    next_index, next_smotif = getNextSmotif(map_route)
     direction = next_smotif[-1]
+
     if direction == 'left':
         next_ss_list = ss_profiles[next_smotif[0]]
     else:
