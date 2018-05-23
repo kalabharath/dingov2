@@ -384,7 +384,7 @@ def getSxAtomCoors(noedef, coorH_matrix, bb_matrix, cluster_protons, cluster_sid
     return atom1_coor, atom2_coor, cluster_protons, cluster_sidechains
 
 
-def sX2ILVApdf(transformed_coors, native_sse_order, current_ss, sorted_noe_data, cluster_protons, cluster_sidechains,
+def sX2ILVApdf(transformed_coors, native_sse_order, sorted_noe_data, cluster_protons, cluster_sidechains,
                exp_data, stage):
 
     sse_coors = copy.deepcopy(transformed_coors)

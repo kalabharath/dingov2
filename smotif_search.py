@@ -189,10 +189,9 @@ def sXSmotifSearch(task):
         psmotif = uts2.getPreviousSmotif(index_array[0], file_index)
         current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1], alt_smotif_def)
         csmotif_data, smotif_def = mutil.getfromDB(psmotif, current_ss, direction, exp_data['database_cutoff'], stage, alt_smotif_def)
-        sse_ordered, sse_index_ordered = mutil.orderSSE(psmotif, current_ss, direction, stage, current_ss_in_que)
+        sse_ordered, sse_index_ordered, previous_sse_route, previous_sse_index = mutil.orderSSE(psmotif, current_ss, direction, stage, current_ss_in_que)
         sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(psmotif)
-        # print "Here S2x", smotif_def, sse_ordered, sse_index_ordered
-
+        print "Here S2x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
     else:
         preSSE = uts2.getPreviousSmotif(index_array[0])
         current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1])
@@ -253,7 +252,8 @@ def sXSmotifSearch(task):
         # ************************************************
         # The real fun is to properly fix these, hahahahhaha
         if stage == 2:
-            rmsd, transformed_coos = qcp.rmsdQCP(psmotif[0], csmotif_data[i], direction, rmsd_cutoff)
+            rmsd, transformed_coos = qcp.rmsdQCP(psmotif[0], csmotif_data[i], direction, rmsd_cutoff, previous_sse_index)
+
         else:
             rmsd, transformed_coos = qcp.rmsdQCP3(preSSE, csmotif_data[i], direction, rmsd_cutoff)
 
@@ -273,7 +273,6 @@ def sXSmotifSearch(task):
             continue
 
         if no_clashes:
-
             # Prepare temporary arrays to log the data.
             tlog, total_percent, pcs_tensor_fits, rdc_tensor_fits = [], [], [], []
             tlog.append(['smotif', tpdbid])
@@ -281,7 +280,7 @@ def sXSmotifSearch(task):
             tlog.append(['qcp_rmsd', transformed_coos, sse_ordered, rmsd])
 
             if stage == 2:
-                cathcodes = sm.orderCATH(psmotif, csmotif_data[i][0], direction)
+                cathcodes = sm.orderCATH(psmotif, csmotif_data[i][0], direction) #change this
             else:
                 cathcodes = sm.orderCATH(preSSE, csmotif_data[i][0], direction)
             tlog.append(['cathcodes', cathcodes])
@@ -306,13 +305,15 @@ def sXSmotifSearch(task):
             if 'ilva_noes' in exp_data_types:
                 noe_probability, no_of_noes, noe_energy, noe_data, new_cluster_protons, new_cluster_sidechains = noepdf.sX2ILVApdf(
                     transformed_coos,
-                    sse_ordered, current_ss,
+                    sse_ordered,
                     sorted_noe_data,
                     cluster_protons, cluster_sidechains, exp_data, stage)
 
                 if noe_probability >= exp_data['expected_noe_prob'][stage - 1]:
                     tlog.append(['NOE_filter', noe_probability, no_of_noes, noe_energy, noe_data, new_cluster_protons,
                                  new_cluster_sidechains])
+                    print rmsd, pdbid
+                    print "NOE prob: ", noe_probability, noe_energy, no_of_noes
                 else:
                     continue
 
@@ -350,7 +351,7 @@ def sXSmotifSearch(task):
             if 'reference_ca' in exp_data_types:
                 ref_rmsd = ref.calcRefRMSD2(exp_data['reference_ca'], sse_ordered, transformed_coos)
                 tlog.append(['Ref_RMSD', ref_rmsd, seq_identity])
-                tlog.append(['Refine_Smotifs', refine_pairs, computed_pairs, log_refine_smotif])
+                tlog.append(['Refine_Smotifs', "Place holder to delete this log permanantly"])
                 tlog.append(['Alt_smotif', current_ss_in_que])
 
             if pcs_tensor_fits or noe_probability:

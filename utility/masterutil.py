@@ -165,26 +165,32 @@ def generate_refinement_order2(sse_array, computed_pairs):
     return refine_pairs, computed_pairs
 
 
-def orderSSE(previous_smotif, current_sse, direction, stage, alt_smotf_def):
+def orderSSE(previous_smotif, current_sse, direction, stage, alt_smotif_def):
 
     """
+
     :param previous_smotif:
     :param current_sse:
     :param direction:
     :param stage:
+    :param alt_smotif_def:
     :return:
     """
-
     if stage == 2:
-        previous_sse_soute = (previous_smotif[0][2])[:]
+        previous_sse_route = (previous_smotif[0][2])[:]
+        order_sse_route = previous_sse_route[:]
         ordered_sse = (previous_smotif[1][1])[:]
+
         if direction == 'left':
             ordered_sse.insert(0, current_sse)
-            previous_sse_soute.insert(0, alt_smotf_def[0])
+            order_sse_route.insert(0, alt_smotif_def[0])
+            previous_sse_index = [direction, previous_sse_route.index(alt_smotif_def[1])]
         else:
             ordered_sse.append(current_sse)
-            previous_sse_soute.append(alt_smotf_def[1])
-        return ordered_sse, previous_sse_soute
+            order_sse_route.append(alt_smotif_def[1])
+            previous_sse_index = [direction, previous_sse_route.index(alt_smotif_def[0])]
+        return ordered_sse, order_sse_route, previous_sse_route, previous_sse_index
+
     else:
         computed_pairs = previous_smotif[8][2]
         log_refine_smotif = previous_smotif[8][3]

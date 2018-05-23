@@ -202,7 +202,7 @@ def get_dist(r1, r2):
     return math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1))
 
 
-def rmsdQCP(psmotif, csmotif, direction, cutoff):
+def rmsdQCP(psmotif, csmotif, direction, cutoff, previous_sse_index):
 
     """
     use rmsdQCP
@@ -214,20 +214,30 @@ def rmsdQCP(psmotif, csmotif, direction, cutoff):
     """
 
     psmotif = (psmotif[1])[:]
+    psmotif_index = previous_sse_index[-1]
 
+    if psmotif_index == 0:
+        indexa =1
+        indexb = 2
+    elif psmotif_index == 1:
+        indexa = 2
+        indexb = 1
+    else:
+        print "WTF:????"
+
+    # Extra careful about this if-else loop, the trick is finding the the correct arrays
     if direction == 'left':
-        native_fraga = getcoo(psmotif[1])
-        frag_a = getcoo(psmotif[1])
+        native_fraga = getcoo(psmotif[indexa])
+        frag_a = getcoo(psmotif[indexa])
         frag_b = getcoo(csmotif[2])
         native_fragb_2ndsse = (csmotif[1])[:]
-        native_fraga_2ndsse = getcoo(psmotif[2])
+        native_fraga_2ndsse = getcoo(psmotif[indexb])
     else:
-
-        native_fraga = getcoo(psmotif[2])
-        frag_a = getcoo(psmotif[2])
+        native_fraga = getcoo(psmotif[indexb])
+        frag_a = getcoo(psmotif[indexb])
         frag_b = getcoo(csmotif[1])
         native_fragb_2ndsse = (csmotif[2])[:]
-        native_fraga_2ndsse = getcoo(psmotif[1])
+        native_fraga_2ndsse = getcoo(psmotif[indexa])
 
     frag_a, a_cen = centerCoo(frag_a)
     frag_b, b_cen = centerCoo(frag_b)
@@ -275,10 +285,18 @@ def rmsdQCP(psmotif, csmotif, direction, cutoff):
     trans_sse2nd = applyTranslation(rot_sse_2nd, a_cen)
 
     # return 3 arrays of coordinates
+    # The order problem ?
+
     if direction == 'left':
-        transformed_coor = [trans_sse2nd, native_fraga, native_fraga_2ndsse]
+        if psmotif_index == 0:
+            transformed_coor = [trans_sse2nd, native_fraga, native_fraga_2ndsse]
+        else:
+            transformed_coor = [trans_sse2nd, native_fraga_2ndsse, native_fraga]
     else:
-        transformed_coor = [native_fraga_2ndsse, native_fraga, trans_sse2nd]
+        if psmotif_index == 1: # double check this
+            transformed_coor = [native_fraga_2ndsse, native_fraga, trans_sse2nd]
+        else:
+            transformed_coor = [native_fraga, native_fraga_2ndsse, trans_sse2nd]
 
     # free memory
     qcprot.FreeDMatrix(xyz1)
