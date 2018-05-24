@@ -22,6 +22,7 @@ def deprecated(func):
 
     return new_func
 
+
 def enum(*sequential, **named):
     """
 
@@ -170,6 +171,7 @@ def rdcSumChi(rdc_data, stage):
             snchi += nchi
 
     return snchi
+
 
 def makeTopPickle(previous_smotif_index, num_hits, stage):
     """
@@ -383,6 +385,7 @@ def getRunSeq(num_hits, stage):
                 run_seq.append([i, j])
         return run_seq, next_index
 
+
 def start_top_hits(num_hits, stage, smotif_index):
     """
     generate run seq, a seq list of pairs of
@@ -433,6 +436,7 @@ def start_top_hits(num_hits, stage, smotif_index):
         for i in range(len(top_hits)):
             for j in range(len(next_ss_list)):
                 run_seq.append([i, j, next_smotif])
+
     return run_seq, smotif_index
 
 """

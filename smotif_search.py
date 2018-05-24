@@ -172,7 +172,6 @@ def sXSmotifSearch(task):
     :return:
     """
     # task = [[0, 0, [3, 4, 'left'], args.stage]
-    #print "XXYY",task[0], task[1]
     index_array = [task[0][0], task[0][1]]
     alt_smotif_def = task[0][2]
     #print alt_smotif_def
