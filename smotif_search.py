@@ -171,7 +171,8 @@ def sXSmotifSearch(task):
     :param task:
     :return:
     """
-    # task = [[0, 0, [3, 4, 'left'], args.stage]
+
+    # task = [[0, 0, [2, 4, 'left']], 3, 2]
     index_array = [task[0][0], task[0][1]]
     alt_smotif_def = task[0][2]
     #print alt_smotif_def
@@ -182,7 +183,7 @@ def sXSmotifSearch(task):
     print task
     exp_data = io.readPickle("exp_data.pickle")
     exp_data_types = exp_data.keys()  # ['ss_seq', 'pcs_data', 'aa_seq', 'contacts']
-    psmotif, preSSE, dump_log = [], [], []
+    psmotif, pre_smotif_assembly, dump_log = [], [], []
 
     if stage == 2:
         psmotif = uts2.getPreviousSmotif(index_array[0], file_index)
@@ -192,14 +193,14 @@ def sXSmotifSearch(task):
         sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(psmotif)
         print "Here S2x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
     else:
-        preSSE = uts2.getPreviousSmotif(index_array[0])
-        current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1])
-        csmotif_data, smotif_def = mutil.getfromDB(preSSE, current_ss, direction, exp_data['database_cutoff'], stage)
-        sse_ordered, refine_pairs, computed_pairs, log_refine_smotif = mutil.orderSSE(preSSE, current_ss, direction, stage)
-        sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(preSSE)
+        pre_smotif_assembly = uts2.getPreviousSmotif(index_array[0], file_index)
+        current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1], alt_smotif_def)
+        csmotif_data, smotif_def = mutil.getfromDB(pre_smotif_assembly, current_ss, direction, exp_data['database_cutoff'], stage, alt_smotif_def)
+        sse_ordered, sse_index_ordered, previous_sse_route, previous_sse_index = mutil.orderSSE(pre_smotif_assembly, current_ss, direction, stage, current_ss_in_que)
+        sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(pre_smotif_assembly)
+        print "Here S3x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
 
     print current_ss, direction
-
     if 'rmsd_cutoff' in exp_data_types:
         rmsd_cutoff = exp_data['rmsd_cutoff'][stage - 1]
     else:
@@ -254,7 +255,7 @@ def sXSmotifSearch(task):
             rmsd, transformed_coos = qcp.rmsdQCP(psmotif[0], csmotif_data[i], direction, rmsd_cutoff, previous_sse_index)
 
         else:
-            rmsd, transformed_coos = qcp.rmsdQCP3(preSSE, csmotif_data[i], direction, rmsd_cutoff)
+            rmsd, transformed_coos = qcp.rmsdQCP3(pre_smotif_assembly, csmotif_data[i], direction, rmsd_cutoff, previous_sse_index)
 
         if rmsd <= rmsd_cutoff:
 
@@ -275,13 +276,13 @@ def sXSmotifSearch(task):
             # Prepare temporary arrays to log the data.
             tlog, total_percent, pcs_tensor_fits, rdc_tensor_fits = [], [], [], []
             tlog.append(['smotif', tpdbid])
-            tlog.append(['smotif_def', sse_ordered])
+            tlog.append(['smotif_def', sse_ordered, sse_index_ordered])
             tlog.append(['qcp_rmsd', transformed_coos, sse_ordered, rmsd])
 
             if stage == 2:
                 cathcodes = sm.orderCATH(psmotif, csmotif_data[i][0], direction) #change this
             else:
-                cathcodes = sm.orderCATH(preSSE, csmotif_data[i][0], direction)
+                cathcodes = sm.orderCATH(pre_smotif_assembly, csmotif_data[i][0], direction)
             tlog.append(['cathcodes', cathcodes])
 
             # ************************************************

@@ -210,6 +210,7 @@ def rmsdQCP(psmotif, csmotif, direction, cutoff, previous_sse_index):
     :param csmotif:
     :param direction:
     :param cutoff:
+    :param previous_sse_index:
     :return:
     """
 
@@ -306,38 +307,27 @@ def rmsdQCP(psmotif, csmotif, direction, cutoff, previous_sse_index):
     return rmsd, transformed_coor
 
 
-def rmsdQCP3(previous_smotif, csmotif, direction, cutoff):
+def rmsdQCP3(previous_smotif, csmotif, direction, cutoff, previous_sse_index):
 
     """
-
     :param previous_smotif:
     :param csmotif:
     :param direction:
     :param cutoff:
+    :param previous_sse_index:
     :return:
     """
     presse = (previous_smotif[2][1])[:]
-
-    """
-    for entry in previous_smotif:
-        if 'qcp_rmsd' == entry[0]:
-            presse = (entry[1])[:]
-
-    # print csmotif
-    """
-    try:
-        if direction == 'left':
-            frag_b = getcoo(csmotif[2])
-            native_fragb_2ndsse = (csmotif[1])[:]
-            frag_a = copy.deepcopy(presse[0])
-        else:
-            frag_a = copy.deepcopy(presse[-1])
-            frag_b = getcoo(csmotif[1])
-            native_fragb_2ndsse = (csmotif[2])[:]
-    except:
-        print "Error in format of data"
-        print "Wrong stage for the data format"
-        return 999.999, []
+    psmotif_index = previous_sse_index[-1]
+    
+    if direction == 'left':
+        frag_b = getcoo(csmotif[2])
+        native_fragb_2ndsse = (csmotif[1])[:]
+        frag_a = copy.deepcopy(presse[0])
+    else:
+        frag_a = copy.deepcopy(presse[-1])
+        frag_b = getcoo(csmotif[1])
+        native_fragb_2ndsse = (csmotif[2])[:]
 
     frag_a, a_cen = centerCoo(frag_a)
     frag_b, b_cen = centerCoo(frag_b)
@@ -499,6 +489,7 @@ def kClashes(coo_arrays, sse_ordered, current_ss):
     Known minimum distances between various atoms between the SSEs of the smotif
     the first entry is mean and second entry is SD, computed on a sample of 100 lowest distances observed over single
     digit smotifs that have the largest number of entries.
+    TODO if doing both NH and CO overlaps alternate the index between the two for 2X speedup
 
     """
 

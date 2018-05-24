@@ -105,11 +105,12 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, al
             previous_sse = alt_smotif_def[0]
             previous_ss_index = previous_sse_index.index(previous_sse)
             previous_ss = psmotif[previous_ss_index]
+
     else:
         searched_smotifs = []
         for entry in previous_smotif:
             if 'smotif_def' == entry[0]:
-                searched_smotifs = entry[-1]
+                searched_smotifs = entry[1]
 
         # ['smotif_def', [['helix', 6, 7, 5, 145, 150], ['helix', 23, 5, 1, 156, 178], ['strand', 5, 7, 8, 133, 137]]]
 
@@ -190,6 +191,22 @@ def orderSSE(previous_smotif, current_sse, direction, stage, alt_smotif_def):
             order_sse_route.append(alt_smotif_def[1])
             previous_sse_index = [direction, previous_sse_route.index(alt_smotif_def[0])]
         return ordered_sse, order_sse_route, previous_sse_route, previous_sse_index
+
+    elif stage > 2:
+        previous_sse_route = (previous_smotif[1][2])[:]
+        order_sse_route = previous_sse_route[:]
+        previous_sse = previous_smotif[2][2]
+
+        if direction == 'left':
+            previous_sse.insert(0, current_sse)
+            order_sse_route.insert(0, alt_smotif_def[0])
+            previous_sse_index = [direction, previous_sse_route.index(alt_smotif_def[1])]
+        else:
+            previous_sse.append(current_sse)
+            order_sse_route.append(alt_smotif_def[1])
+            previous_sse_index = [direction, previous_sse_route.index(alt_smotif_def[0])]
+
+        return previous_sse, order_sse_route, previous_sse_route, previous_sse_index
 
     else:
         computed_pairs = previous_smotif[8][2]

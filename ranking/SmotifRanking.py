@@ -496,16 +496,13 @@ def getRunSeq(num_hits, stage):
     check_pickle = str(next_index - 2) + str("_*_*.gzip")
     file_list = glob.glob(check_pickle)
 
-    if len(file_list) > 10:
-        remove = "rm " + check_pickle
-        os.system(remove)
-
     if top_hits:
         run_seq = []
         for i in range(len(top_hits)):
             for j in range(len(next_ss_list)):
                 run_seq.append([i, j])
         return run_seq, next_index
+
 
 def getRunSeqAlt(num_hits, stage, seq_index):
 
@@ -514,6 +511,10 @@ def getRunSeqAlt(num_hits, stage, seq_index):
     generate run seq, a seq list of pairs of
     indexes of profiles for job scheduling
     """
+
+    import warnings
+    warnings.warn("this module (getRunSeqAlt) is deprecated", DeprecationWarning,
+                  stacklevel=2)
 
     map_route = []
     ss_profiles = io.readPickle("ss_profiles.pickle")
@@ -524,11 +525,8 @@ def getRunSeqAlt(num_hits, stage, seq_index):
     elif os.path.isfile("rdc_route.pickle"):
         map_route = io.readPickle("rdc_route.pickle")
 
-    alt_smotif_defs = map_route[seq_index]
-
-    print "here: ", alt_smotif_defs
-
-
+    alt_smotif_defs = map_route[seq_index]    
+    
     try:
         next_index, next_smotif = getNextSmotif(map_route)
         print next_index, next_smotif
