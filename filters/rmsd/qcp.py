@@ -317,15 +317,16 @@ def rmsdQCP3(previous_smotif, csmotif, direction, cutoff, previous_sse_index):
     :param previous_sse_index:
     :return:
     """
-    presse = (previous_smotif[2][1])[:]
+    psmotif = (previous_smotif[2][1])[:]
     psmotif_index = previous_sse_index[-1]
-    
+    print previous_sse_index
+
     if direction == 'left':
         frag_b = getcoo(csmotif[2])
         native_fragb_2ndsse = (csmotif[1])[:]
-        frag_a = copy.deepcopy(presse[0])
+        frag_a = copy.deepcopy(psmotif[psmotif_index])
     else:
-        frag_a = copy.deepcopy(presse[-1])
+        frag_a = copy.deepcopy(psmotif[psmotif_index])
         frag_b = getcoo(csmotif[1])
         native_fragb_2ndsse = (csmotif[2])[:]
 
@@ -375,7 +376,7 @@ def rmsdQCP3(previous_smotif, csmotif, direction, cutoff, previous_sse_index):
     trans_sse2nd = applyTranslation(rot_sse_2nd, a_cen)
 
     # append the translated coordinates
-    temp_holder = (presse)[:]
+    temp_holder = (psmotif)[:]
 
     if direction == 'left':
         temp_holder.insert(0, trans_sse2nd)
@@ -391,6 +392,16 @@ def rmsdQCP3(previous_smotif, csmotif, direction, cutoff, previous_sse_index):
 
 
 def rmsdQCP4(pair, presse, alt_smotif_log,  csmotif, direction, cutoff):
+    """
+    TODO Delete this function
+    :param pair:
+    :param presse:
+    :param alt_smotif_log:
+    :param csmotif:
+    :param direction:
+    :param cutoff:
+    :return:
+    """
 
     from utility.alt_smotif_util import delete_last_sse
 

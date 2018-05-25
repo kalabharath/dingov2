@@ -256,6 +256,7 @@ def sXSmotifSearch(task):
 
         else:
             rmsd, transformed_coos = qcp.rmsdQCP3(pre_smotif_assembly, csmotif_data[i], direction, rmsd_cutoff, previous_sse_index)
+            print "S3x: ", rmsd
 
         if rmsd <= rmsd_cutoff:
 

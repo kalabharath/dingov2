@@ -107,6 +107,7 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, al
             previous_ss = psmotif[previous_ss_index]
 
     else:
+        # TODO fix this first, before downstream.
         searched_smotifs = []
         for entry in previous_smotif:
             if 'smotif_def' == entry[0]:
