@@ -105,34 +105,17 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, al
             previous_sse = alt_smotif_def[0]
             previous_ss_index = previous_sse_index.index(previous_sse)
             previous_ss = psmotif[previous_ss_index]
-    elif stage > 2:
-
+    else:
         searched_smotifs = (previous_smotif[1][1])[:]
         previous_sse_index = (previous_smotif[1][2])[:]
 
         if direction == 'left':
             previous_ss_def = previous_sse_index.index(alt_smotif_def[1])
-
         else:
             previous_ss_def = previous_sse_index.index(alt_smotif_def[0])
-
-        print "Get correct db:", searched_smotifs, previous_sse_index
-        print alt_smotif_def, previous_ss_def
         previous_ss = searched_smotifs[previous_ss_def]
-
-    else:
-        # TODO fix this first, before downstream.
-        searched_smotifs = []
-        for entry in previous_smotif:
-            if 'smotif_def' == entry[0]:
-                searched_smotifs = entry[1]
-
-        # ['smotif_def', [['helix', 6, 7, 5, 145, 150], ['helix', 23, 5, 1, 156, 178], ['strand', 5, 7, 8, 133, 137]]]
-
-        if direction == 'left':
-            previous_ss = searched_smotifs[0]
-        else:
-            previous_ss = searched_smotifs[-1]
+        # print "Get correct db:", searched_smotifs, previous_sse_index
+        # print alt_smotif_def, previous_ss_def
 
     # current_ss, previous_ss
     if direction == 'left':  # double check this implementation

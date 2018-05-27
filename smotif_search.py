@@ -250,16 +250,14 @@ def sXSmotifSearch(task):
         # RMSD filter using QCP method
         # quickly filters non-overlapping smotifs
         # ************************************************
-        # The real fun is to properly fix these, hahahahhaha
+
         if stage == 2:
             rmsd, transformed_coos = qcp.rmsdQCP(psmotif[0], csmotif_data[i], direction, rmsd_cutoff, previous_sse_index)
 
         else:
             rmsd, transformed_coos = qcp.rmsdQCP3(pre_smotif_assembly, csmotif_data[i], direction, rmsd_cutoff, previous_sse_index)
-            print "S3x: ", rmsd
 
         if rmsd <= rmsd_cutoff:
-
             # Loop constraint restricts the overlapping smotifs is not drifted far away.
             loop_constraint = llc.loopConstraint(transformed_coos, sse_ordered, direction, smotif_def)
 

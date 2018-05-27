@@ -319,7 +319,6 @@ def rmsdQCP3(previous_smotif, csmotif, direction, cutoff, previous_sse_index):
     """
     psmotif = (previous_smotif[2][1])[:]
     psmotif_index = previous_sse_index[-1]
-    print previous_sse_index
 
     if direction == 'left':
         frag_b = getcoo(csmotif[2])
