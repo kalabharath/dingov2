@@ -83,15 +83,15 @@ def getSSdef(index_array):
 def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, alt_smotif_def):
 
     """
-    from stage2
-    :param database_cutoff:
+
     :param previous_smotif:
     :param current_ss:
     :param direction:
-    :param stage
+    :param database_cutoff:
+    :param stage:
+    :param alt_smotif_def:
     :return:
     """
-
     if stage == 2:
 
         previous_sse_index = previous_smotif[0][2]
@@ -105,7 +105,11 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, al
             previous_sse = alt_smotif_def[0]
             previous_ss_index = previous_sse_index.index(previous_sse)
             previous_ss = psmotif[previous_ss_index]
+    elif stage > 2:
 
+        searched_smotifs = (previous_smotif[1][1])[:]
+        previous_sse_index = (previous_smotif[1][2])[:]
+        print "Get correct db:" searched_smotifs, previous_sse_index
     else:
         # TODO fix this first, before downstream.
         searched_smotifs = []
