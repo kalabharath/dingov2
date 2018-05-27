@@ -109,7 +109,11 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, al
 
         searched_smotifs = (previous_smotif[1][1])[:]
         previous_sse_index = (previous_smotif[1][2])[:]
-        print "Get correct db:" searched_smotifs, previous_sse_index
+        print "Get correct db:", searched_smotifs, previous_sse_index
+        print alt_smotif_def
+        if direction == 'left':
+            pass
+
     else:
         # TODO fix this first, before downstream.
         searched_smotifs = []
