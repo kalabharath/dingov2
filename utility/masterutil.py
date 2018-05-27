@@ -112,7 +112,7 @@ def getfromDB(previous_smotif, current_ss, direction, database_cutoff, stage, al
         print "Get correct db:", searched_smotifs, previous_sse_index
         print alt_smotif_def
         if direction == 'left':
-            pass
+            pass 
 
     else:
         # TODO fix this first, before downstream.
