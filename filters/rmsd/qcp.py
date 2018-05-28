@@ -234,11 +234,11 @@ def rmsdQCP(psmotif, csmotif, direction, cutoff, previous_sse_index):
         native_fragb_2ndsse = (csmotif[1])[:]
         native_fraga_2ndsse = getcoo(psmotif[indexb])
     else:
-        native_fraga = getcoo(psmotif[indexb])
-        frag_a = getcoo(psmotif[indexb])
+        native_fraga = getcoo(psmotif[indexa])
+        frag_a = getcoo(psmotif[indexa])
         frag_b = getcoo(csmotif[1])
         native_fragb_2ndsse = (csmotif[2])[:]
-        native_fraga_2ndsse = getcoo(psmotif[indexa])
+        native_fraga_2ndsse = getcoo(psmotif[indexb])
 
     frag_a, a_cen = centerCoo(frag_a)
     frag_b, b_cen = centerCoo(frag_b)
