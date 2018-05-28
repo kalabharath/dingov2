@@ -311,8 +311,6 @@ def sXSmotifSearch(task):
                 if noe_probability >= exp_data['expected_noe_prob'][stage - 1]:
                     tlog.append(['NOE_filter', noe_probability, no_of_noes, noe_energy, noe_data, new_cluster_protons,
                                  new_cluster_sidechains])
-                    print rmsd, pdbid
-                    print "NOE prob: ", noe_probability, noe_energy, no_of_noes
                 else:
                     continue
 
