@@ -318,15 +318,30 @@ def makeTopPickle2(previous_smotif_index, num_hits, stage):
                     break
         else:
             t2_log = collections.defaultdict(list)
-            for hit in entries:
-                #if hit[5][0] == 'RDC_filter':
-                rdc_tensors = hit[6][1]
-                rdc_score = 0
-                for tensor in rdc_tensors:
-                    rdc_score = rdc_score + tensor[0]
-                t2_log[rdc_score].append(hit)
-            rdc_score_bins = t2_log.keys()
-            rdc_score_bins.sort()
+            if hit[6][0] == 'RDC_filter':
+                for hit in entries:
+                    # if hit[5][0] == 'RDC_filter':
+                    rdc_tensors = hit[6][1]
+                    rdc_score = 0
+                    for tensor in rdc_tensors:
+                        rdc_score = rdc_score + tensor[0]
+                    t2_log[rdc_score].append(hit)
+                rdc_score_bins = t2_log.keys()
+                rdc_score_bins.sort()
+            elif hit[6][0] == 'PCS_filter':
+                print "Working on PCS filter instead of RDC"
+                for hit in entries:
+                    # if hit[5][0] == 'RDC_filter':
+                    rdc_tensors = hit[6][1]
+                    rdc_score = 0
+                    for tensor in rdc_tensors:
+                        rdc_score = rdc_score + tensor[1]
+                    t2_log[rdc_score].append(hit)
+                rdc_score_bins = t2_log.keys()
+                rdc_score_bins.sort()
+            else:
+                print "Something is wrong with your PCS logic"
+
             for k in range(len(rdc_score_bins)):
                 hits = t2_log[rdc_score_bins[k]]
                 for hit in hits:
@@ -442,7 +457,6 @@ def makeTopPickle2Old(previous_smotif_index, num_hits, stage):
     else:
         print "could only extract ", len(reduced_dump_log), count_hits
 
-
     # io.dumpPickle(str(previous_smotif_index) + "_tophits.pickle", dump_pickle)
     io.dumpGzipPickle(str(previous_smotif_index) + "_tophits.gzip", reduced_dump_log)
     print "actual number in top hits ", len(reduced_dump_log)
@@ -456,7 +470,6 @@ def getRunSeq(num_hits, stage):
     generate run seq, a seq list of pairs of
     indexes of profiles for job scheduling
     """
-
     map_route = []
     ss_profiles = io.readPickle("ss_profiles.pickle")
     if os.path.isfile("contacts_route.pickle"):

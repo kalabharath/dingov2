@@ -190,6 +190,78 @@ def rank_assembly(dump_log, num_hits):
 
     return reduced_dump_log
 
+def rank_assemblyPCS(dump_log, num_hits):
+    """
+
+    :param dump_log:
+    :param num_hits:
+    :return:
+    """
+
+    new_dict = collections.defaultdict(list)
+
+    for hit in dump_log:
+        # thread_data contains data from each search and filter thread.
+        # initialize total score array
+        noe_energy = hit[5][3]
+        noe_energy = round(noe_energy, 3)
+        new_dict[noe_energy].append(hit)
+
+    keys = new_dict.keys()
+    keys.sort()
+    # Rank based on NOE energy
+
+    reduced_dump_log = []
+    seqs = []
+    parents = []
+    count_hits = 0
+
+    for i in range(len(keys)):
+        entries = new_dict[keys[i]]
+        if count_hits >= num_hits:
+            break
+        if len(entries) == 1:
+            smotif_seq = entries[0][4][1]
+            if smotif_seq not in seqs:
+                seqs.append(smotif_seq)
+                reduced_dump_log.append(entries[0])
+                count_hits += 1
+                print "final sele", keys[i]
+                if count_hits >= num_hits:
+                    break
+        else:
+            t2_log = collections.defaultdict(list)
+            print "Working PCS filters"
+            for hit in entries:
+                pcs_tensors = hit[6][1]
+                pcs_score = 0
+                for tensor in pcs_tensors:
+                    pcs_score = pcs_score + tensor[1]
+                t2_log[pcs_score].append(hit)
+            pcs_score_bins = t2_log.keys()
+            pcs_score_bins.sort()
+            for k in range(len(pcs_score_bins)):
+                hits = t2_log[pcs_score_bins[k]]
+                for hit in hits:
+                    smotif_seq = hit[4][1]
+                    if smotif_seq not in seqs:
+                        seqs.append(smotif_seq)
+                        reduced_dump_log.append(hit)
+                        print "final sele", keys[i], pcs_score_bins[k]
+                        count_hits += 1
+                    if count_hits >= num_hits:
+                        break
+                if count_hits >= num_hits:
+                    break
+            if count_hits >= num_hits:
+                break
+    if count_hits >= num_hits:
+        pass
+    else:
+        print "could only extract ", len(reduced_dump_log), count_hits
+
+    return reduced_dump_log
+
 
 def rank_assembly_with_clustering(dump_log, num_hits):
     """
@@ -243,7 +315,6 @@ def rank_assembly_with_clustering(dump_log, num_hits):
         reduced_dump_log = reduced_dump_log[0:num_hits]
     else:
         print "could only extract ", len(reduced_dump_log)
-
     return reduced_dump_log
 
 
