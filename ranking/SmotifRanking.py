@@ -294,26 +294,19 @@ def makeTopPickle2(previous_smotif_index, num_hits, stage):
 
     for hit in hits:
         # thread_data contains data from each search and filter thread.
-
-
         noe_energy = hit[5][3]
         noe_energy = round(noe_energy, 4)
         new_dict[noe_energy].append(hit)
-
-
     keys = new_dict.keys()
     keys.sort()
     # Rank based on NOE energy
-
     reduced_dump_log = []
     seqs = []
     count_hits = 0
     for i in range(len(keys)):
         entries = new_dict[keys[i]]
-
         if count_hits >= num_hits:
             break
-
         if len(entries) == 1:
             smotif_seq = entries[0][4][1]
             if smotif_seq not in seqs:
@@ -356,8 +349,6 @@ def makeTopPickle2(previous_smotif_index, num_hits, stage):
     else:
         print "could only extract ", len(reduced_dump_log), count_hits
 
-
-    # io.dumpPickle(str(previous_smotif_index) + "_tophits.pickle", dump_pickle)
     io.dumpGzipPickle(str(previous_smotif_index) + "_tophits.gzip", reduced_dump_log)
     print "actual number in top hits ", len(reduced_dump_log)
     return range(len(reduced_dump_log))

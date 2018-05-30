@@ -81,7 +81,7 @@ if rank == 0:
             except:
                 # Assemble top hits from the previously generated hits
                 print "XXX:", args.numhits, args.stage
-                tasks, sse_index = srank.getRunSeq(args.numhits, args.stage) # TODO change this for new alt_smotifs
+                tasks, sse_index = srank.getRunSeq(args.numhits, args.stage)  # TODO change this for new alt_smotifs
                 # tasks, sse_index = srank.getRunSeqAlt(args.numhits, args.stage, args.infile)
         except:
             # print what went wrong and terminate the slave processes
@@ -138,8 +138,8 @@ if rank == 0:
 
     # consolidate top_hits and dump files here
     if args.stage == 1:
+        tasks, sse_index = srank.getRunSeq(args.numhits, args.stage)  # TODO change this for new alt_smotifs
         exit()
-
     print "Total number of hits  found are : ",len(total_data)
     # ranked_data = rank_assembly(total_data, args.numhits)
     ranked_data = rank_assembly_with_clustering(total_data, args.numhits)

@@ -30,7 +30,6 @@ def S1SmotifSearch(task):
     stage = task[1]
     s1_def, s2_def, sse_route = mutil.getSSdef(index_array)
     smotif_def = sm.getSmotif(s1_def, s2_def)
-
     exp_data = io.readPickle("exp_data.pickle")
     exp_data_types = exp_data.keys()  # ['ss_seq', 'pcs_data', 'aa_seq', 'contacts']
 
@@ -83,9 +82,8 @@ def S1SmotifSearch(task):
 
         tlog.append(['smotif', smotif_data[i], sse_route])
         tlog.append(['smotif_def', [s1_def, s2_def]])
-        parent_smotifs = sm.array2string([smotif_data[i][0]])
         tlog.append(['qcp_rmsd'])
-        tlog.append(['cathcodes', [smotif_data[i][0]], parent_smotifs])
+        tlog.append(['cathcodes', [smotif_data[i][0]],[sse_route]])
 
         # ************************************************
         # Sequence filter
@@ -175,7 +173,7 @@ def sXSmotifSearch(task):
     # task = [[0, 0, [2, 4, 'left']], 3, 2]
     index_array = [task[0][0], task[0][1]]
     alt_smotif_def = task[0][2]
-    #print alt_smotif_def
+    #print "Alt_smotif_def", alt_smotif_def
     #print index_array
     stage = task[1]
     file_index = task[2]
@@ -279,10 +277,10 @@ def sXSmotifSearch(task):
             tlog.append(['qcp_rmsd', transformed_coos, sse_ordered, rmsd])
 
             if stage == 2:
-                cathcodes = sm.orderCATH(psmotif, csmotif_data[i][0], direction) #change this
+                cathcodes, cathcodes_order = sm.orderCATH(psmotif, csmotif_data[i][0], direction, alt_smotif_def)
             else:
-                cathcodes = sm.orderCATH(pre_smotif_assembly, csmotif_data[i][0], direction)
-            tlog.append(['cathcodes', cathcodes])
+                cathcodes, cathcodes_order = sm.orderCATH(pre_smotif_assembly, csmotif_data[i][0], direction, alt_smotif_def)
+            tlog.append(['cathcodes', cathcodes, cathcodes_order])
 
             # ************************************************
             # Sequence filter

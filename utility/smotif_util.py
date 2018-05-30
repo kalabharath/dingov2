@@ -91,7 +91,7 @@ def array2string(array):
     return string
 
 
-def orderCATH(previous_smotif, current_smotif, direction):
+def orderCATH(previous_smotif, current_smotif, direction, alt_smotf_def):
     """
 
     :param previous_smotif:
@@ -101,13 +101,17 @@ def orderCATH(previous_smotif, current_smotif, direction):
     """
 
     previous_cath = (previous_smotif[3][1])[:]
+    previous_sse = (previous_smotif[3][2])[:]
 
+    previous_sse.append(alt_smotf_def)
+    previous_cath.append(current_smotif)
+    """
     if direction == 'left':
         previous_cath.insert(0, current_smotif)
     else:
         previous_cath.append(current_smotif)
-
-    return previous_cath
+    """
+    return previous_cath, previous_sse
 
 
 def getRMSDcutoff(smotif_def):
