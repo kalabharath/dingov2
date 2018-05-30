@@ -189,14 +189,14 @@ def sXSmotifSearch(task):
         csmotif_data, smotif_def = mutil.getfromDB(psmotif, current_ss, direction, exp_data['database_cutoff'], stage, alt_smotif_def)
         sse_ordered, sse_index_ordered, previous_sse_route, previous_sse_index = mutil.orderSSE(psmotif, current_ss, direction, stage, current_ss_in_que)
         sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(psmotif)
-        print "Here S2x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
+        #print "Here S2x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
     else:
         pre_smotif_assembly = uts2.getPreviousSmotif(index_array[0], file_index)
         current_ss, direction, current_ss_in_que = uts2.getSS2(index_array[1], alt_smotif_def)
         csmotif_data, smotif_def = mutil.getfromDB(pre_smotif_assembly, current_ss, direction, exp_data['database_cutoff'], stage, alt_smotif_def)
         sse_ordered, sse_index_ordered, previous_sse_route, previous_sse_index = mutil.orderSSE(pre_smotif_assembly, current_ss, direction, stage, current_ss_in_que)
         sorted_noe_data, cluster_protons, cluster_sidechains = mutil.fetchNOEdata(pre_smotif_assembly)
-        print "Here S3x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
+        #print "Here S3x", smotif_def, alt_smotif_def, previous_sse_route, previous_sse_index
 
     print current_ss, direction
     if 'rmsd_cutoff' in exp_data_types:
