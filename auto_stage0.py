@@ -240,13 +240,16 @@ elif ('pcs_broker' in datatypes) and not ('rdc_input_files' in datatypes):
     map_route = PCSmap.getRoute(ss_seq, pcsdata)
     print map_route
     io.dumpPickle("pcs_route.pickle", map_route)
+    map_route_extended = ru.getExtendedMapRoute(map_route)
+    print map_route_extended
+    io.dumpPickle('pcs_route_alt.pickle', map_route_extended)
 else:
     map_route = ru.getRDCMapRoute(ss_combi, rdc_data)
     map_route_extended = ru.getExtendedMapRoute(map_route)
     print map_route
     print map_route_extended
-    # io.dumpPickle("rdc_route.pickle", map_route)
-    io.dumpPickle('rdc_route.pickle', map_route_extended)
+    io.dumpPickle("rdc_route.pickle", map_route)
+    io.dumpPickle('rdc_route_alt.pickle', map_route_extended)
 
 if 'database_cutoff' in datatypes:
     database_cutoff = data['database_cutoff']

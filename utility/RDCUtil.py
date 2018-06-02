@@ -86,13 +86,20 @@ def getRdcData(rdc_files, ss_seq):
         return rdc_data
 
 
+def fakeExtendedMapRoute(map_route):
+
+    extended=[]
+    for entry in map_route:
+        extended.append([entry])
+    return extended
+
+
 def getExtendedMapRoute(map_route):
     """
     To know before hand how to traverse the map_route with alternative smotif_definitions
     :param map_route:
     :return:
     """
-
     extended = []
     # map= [[4, 5, 'start'], [3, 4, 'left'], [5, 6, 'right'], [6, 7, 'right'], [2, 3, 'left'], [1, 2, 'left'], [0, 1, 'left']]
     map_ex = []

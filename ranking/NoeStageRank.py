@@ -318,6 +318,65 @@ def rank_assembly_with_clustering(dump_log, num_hits):
     return reduced_dump_log
 
 
+def rank_assembly_with_clustering_pcs(dump_log, num_hits):
+    """
+
+    :param dump_log:
+    :param aa_seq:
+    :param num_hits:
+    :return:
+    """
+
+    new_dict = collections.defaultdict(list)
+
+    for hit in dump_log:
+        # thread_data contains data from each search and filter thread.
+        # initialize total score array
+        noe_energy = hit[5][3]
+        noe_energy = round(noe_energy, 2)
+        new_dict[noe_energy].append(hit)
+        cluster_rmsd_cutoff = hit[4][-1]
+
+    keys = new_dict.keys()
+    keys.sort()
+    # Rank based on NOE energy
+    reduced_dump_log = []
+    for i in range(len(keys)):
+        entries = new_dict[keys[i]]
+        if len(entries) == 1:
+            reduced_dump_log.append(entries[0])
+            print "final sele", keys[i]
+        else:
+            t2_log = collections.defaultdict(list)
+            print "Working PCS filters"
+            for hit in entries:
+                pcs_tensors = hit[6][1]
+                pcs_score = 0
+                for tensor in pcs_tensors:
+                    pcs_score = pcs_score + tensor[1]
+                t2_log[pcs_score].append(hit)
+            pcs_score_bins = t2_log.keys()
+            pcs_score_bins.sort()
+            for k in range(len(pcs_score_bins)):
+                hits = t2_log[pcs_score_bins[k]]
+                for hit in hits:
+                    reduced_dump_log.append(hit)
+                    print "final sele", keys[i], pcs_score_bins[k]
+    initial_entries = len(reduced_dump_log)
+    if len(reduced_dump_log) > (4* num_hits):
+        print ("Reducing the entries to 4 times the top hits", len(reduced_dump_log))
+        reduced_dump_log = reduced_dump_log[:(4*num_hits)]
+        initial_entries = len(reduced_dump_log)
+    print "The Cluster RMSD cutoff is :", cluster_rmsd_cutoff
+    reduced_dump_log, counter = cluster.clusterSmotifs2(reduced_dump_log, cluster_rmsd_cutoff, num_hits)
+    print "From entries :", initial_entries, " Removed: ", counter
+    if len(reduced_dump_log) >= num_hits:
+        reduced_dump_log = reduced_dump_log[0:num_hits]
+    else:
+        print "could only extract ", len(reduced_dump_log)
+    return reduced_dump_log
+
+
 def rank_assembly_with_clustering_and_seq(dump_log, aa_seq, num_hits):
 
     """

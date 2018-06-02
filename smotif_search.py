@@ -132,7 +132,10 @@ def S1SmotifSearch(task):
 
         if 'pcs_data' in exp_data_types:
             pcs_tensor_fits = Pfilter.PCSAxRhFit(s1_def, s2_def, smotif_data[i], exp_data)
-            tlog.append(['PCS_filter', pcs_tensor_fits])
+            if pcs_tensor_fits:
+                tlog.append(['PCS_filter', pcs_tensor_fits])
+            else:
+                continue
 
         # ************************************************
         # Calc RMSD of the reference structure.
@@ -145,7 +148,7 @@ def S1SmotifSearch(task):
             tlog.append(['Ref_RMSD', ref_rmsd, seq_identity])
 
         # Dump the data to the disk
-        if pcs_tensor_fits or noe_probability:
+        if pcs_tensor_fits and noe_probability:
             dump_log.append(tlog)
 
     # Save all of the hits in pickled arrays
@@ -337,8 +340,11 @@ def sXSmotifSearch(task):
             # ************************************************
 
             if 'pcs_data' in exp_data_types:
-                pcs_tensor_fits = Pfilter.PCSAxRhFit2(transformed_coos, sse_ordered, exp_data, stage)
-                tlog.append(['PCS_filter', pcs_tensor_fits])
+                pcs_tensor_fits = Pfilter.PCSAxRhFitXX(transformed_coos, sse_ordered, exp_data, stage)
+                if pcs_tensor_fits:
+                    tlog.append(['PCS_filter', pcs_tensor_fits])
+                else:
+                    continue
 
             # ************************************************
             # Calc RMSD of the reference structure.
@@ -352,7 +358,7 @@ def sXSmotifSearch(task):
                 tlog.append(['Refine_Smotifs', "Place holder to delete this log permanantly"])
                 tlog.append(['Alt_smotif', current_ss_in_que])
 
-            if pcs_tensor_fits or noe_probability:
+            if pcs_tensor_fits and noe_probability:
                 # dump data to the disk
                 dump_log.append(tlog)
 
@@ -361,7 +367,10 @@ def sXSmotifSearch(task):
         if 'rank_top_hits' in exp_data_types:
             rank_top_hits = exp_data['rank_top_hits']
             num_hits = rank_top_hits[stage - 1]
-            dump_log = rank.rank_assembly_with_clustering(dump_log, num_hits)
+            if rdc_tensor_fits:
+                dump_log = rank.rank_assembly_with_clustering(dump_log, num_hits)
+            if pcs_tensor_fits:
+                dump_log = rank.rank_assembly_with_clustering_pcs(dump_log, num_hits)
             print "Reducing the amount of data to:", rank_top_hits[stage - 1], len(dump_log)
         print "num of hits", len(dump_log)
         # io.dumpGzipPickle("tx_" + str(index_array[0]) + "_" + str(index_array[1]) + ".gzip", dump_log)

@@ -45,7 +45,7 @@ def SearchPcs(ss_array, pcs_data):
         nspcs.sort()
         nspcs.reverse()
         t = 0
-        for j in xrange(0, 2):
+        for j in xrange(0, 1):
             t = t + nspcs[j]
         pcs_array.append(t)
     return pcs_array
@@ -74,9 +74,7 @@ def get_ij(pcs_array):
 
 
 def getRoute(ss_seq, pcsdata):
-    """
-	returns Smotif search route based PCSs/SS
-	"""
+
     import ss_util as ssutil
 
     ss_array, lloop = ssutil.genSSDef(ss_seq)

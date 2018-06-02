@@ -564,3 +564,123 @@ def PCSAxRhFit2(transformed_coos, sse_ordered, exp_data, stage):
     fastT1FM.FreeDArray(rMz)
 
     return temp_tensor
+
+
+def PCSAxRhFitXX(transformed_coos, sse_ordered, exp_data, stage):
+    """
+
+    :param transformed_coos:
+    :param sse_ordered:
+    :param exp_data:
+    :param stage:
+    :return:
+    """
+
+    nh_dict = coorNHdict(transformed_coos, sse_ordered)
+
+    pcs_data = exp_data['pcs_data']
+
+    # print "pcs_data", pcs_data
+    ntags = len(pcs_data)
+
+    # Define Thomas's implementaion of hollow concentric shells
+
+    metal_def = exp_data['metal_spheres']
+    M = [metal_def[0], metal_def[1]]
+    nM = metal_def[2]
+    npts = metal_def[3]
+
+    rMx = fastT1FM.MakeDvector(npts)  # allocate memmory
+    rMy = fastT1FM.MakeDvector(npts)
+    rMz = fastT1FM.MakeDvector(npts)
+    fixedPointsOnSpheres(M, nM, rMx, rMy, rMz)
+
+    # Temp storage of tensor values
+    temp_tensor = []
+
+    for tag in range(0, ntags):
+
+        xyz_HN, smotif_pcs = matchPCS(nh_dict, pcs_data[tag])
+
+        total_pcs, pcs_bool = usuablePCS(smotif_pcs)
+
+        if pcs_bool:  # save some time for not running
+
+            # Thomas's fast Tensor calc code
+            frag_len = len(smotif_pcs)
+            nsets = len(smotif_pcs[0])
+            xyz = fastT1FM.MakeDMatrix(frag_len, 3)
+            pcs = fastT1FM.MakeDMatrix(nsets, frag_len)
+
+            for k in range(nsets):
+                for j in range(frag_len):
+                    fastT1FM.SetDArray(k, j, pcs, smotif_pcs[j][k])
+
+            cm = [0.0, 0.0, 0.0]
+            for j in range(frag_len):
+                cm[0] = cm[0] + xyz_HN[j][0]
+                cm[1] = cm[1] + xyz_HN[j][1]
+                cm[2] = cm[2] + xyz_HN[j][2]
+            cm[0] /= float(frag_len)
+            cm[1] /= float(frag_len)
+            cm[2] /= float(frag_len)
+            for j in range(frag_len):
+                fastT1FM.SetDArray(j, 0, xyz, xyz_HN[j][0] - cm[0])
+                fastT1FM.SetDArray(j, 1, xyz, xyz_HN[j][1] - cm[1])
+                fastT1FM.SetDArray(j, 2, xyz, xyz_HN[j][2] - cm[2])
+
+            tensor = fastT1FM.MakeDMatrix(nsets, 8)
+            Xaxrh_range = fastT1FM.MakeDMatrix(nsets, 4)
+            for i in range(0, nsets):
+                fastT1FM.SetDArray(i, 0, Xaxrh_range, 0.05)
+                fastT1FM.SetDArray(i, 1, Xaxrh_range, 200.0)
+                fastT1FM.SetDArray(i, 2, Xaxrh_range, 0.05)
+                fastT1FM.SetDArray(i, 3, Xaxrh_range, 200.0)
+            # ****
+            chisqr = fastT1FM.rfastT1FM_multi(npts, rMx, rMy, rMz, nsets, frag_len, xyz, pcs, tensor, Xaxrh_range)
+            # ****
+
+            saupe_array = []
+
+            for kk in range(nsets):
+                temp_saupe = []
+                for j in range(3, 8):
+                    temp_saupe.append(fastT1FM.GetDArray(kk, j, tensor))
+                saupe_array.append(temp_saupe)
+
+            x = fastT1FM.GetDArray(0, 0, tensor)
+            y = fastT1FM.GetDArray(0, 1, tensor)
+            z = fastT1FM.GetDArray(0, 2, tensor)
+            metal_pos = [x + cm[0], y + cm[1], z + cm[2]]
+
+            # Compute and check Axial and Rhombic parameters
+            AxRh = calcAxRh(saupe_array)
+
+            # chisqr = checkAxRh(AxRh, chisqr, total_pcs, stage)  # modifies the values of chisqr
+            chisqr = checkAxRhCutoffs(AxRh, chisqr, total_pcs, exp_data, stage)  # modifies the values of chisqr
+            AxRh.append(metal_pos)  # add metal pos
+
+            # Free memory
+            fastT1FM.FreeDMatrix(xyz)
+            fastT1FM.FreeDMatrix(pcs)
+            fastT1FM.FreeDMatrix(Xaxrh_range)
+            fastT1FM.FreeDMatrix(tensor)
+        else:
+            chisqr = 1.0e+30
+
+        if chisqr < 1.0e+30:
+            nchisqr = chisqr / float(total_pcs - (nsets * 5))
+            snchisqr = nchisqr / float(math.pow(total_pcs, 1 / 3.0))
+            temp_tensor.append([tag, snchisqr, AxRh])
+        else:
+            fastT1FM.FreeDArray(rMx)
+            fastT1FM.FreeDArray(rMy)
+            fastT1FM.FreeDArray(rMz)
+            tfalse = []
+            return tfalse
+
+    fastT1FM.FreeDArray(rMx)
+    fastT1FM.FreeDArray(rMy)
+    fastT1FM.FreeDArray(rMz)
+
+    return temp_tensor

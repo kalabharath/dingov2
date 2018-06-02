@@ -397,6 +397,7 @@ def start_top_hits(num_hits, stage, smotif_index):
         map_route = io.readPickle("contacts_route.pickle")
     elif os.path.isfile("pcs_route.pickle"):
         map_route = io.readPickle("pcs_route.pickle")
+        map_route_alt = io.readPickle("pcs_route_alt.pickle")
     elif os.path.isfile("rdc_route.pickle"):
         map_route = io.readPickle("rdc_route.pickle")
         map_route_alt = io.readPickle("rdc_route_alt.pickle")
