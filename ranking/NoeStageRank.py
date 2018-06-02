@@ -375,6 +375,7 @@ def rank_assembly_with_clustering_pcs(dump_log, num_hits):
         print "could only extract ", len(reduced_dump_log)
     return reduced_dump_log
 
+
 def rank_assembly_with_clustering_pcs2(dump_log, num_hits):
     """
 
@@ -413,7 +414,6 @@ def rank_assembly_with_clustering_pcs2(dump_log, num_hits):
             break
         else:
             continue
-
 
     new_pcs_score_dict = collections.defaultdict(list)
     for hit in temp_reduced_dump_log:
